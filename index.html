@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WA Tagger - Format @NIP</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ========== CSS VARIABEL ========== */
+        :root {
+            --primary: #075e54;
+            --secondary: #128c7e;
+            --accent: #25D366;
+            --bg: #f0f2f5;
+            --github: #24292e;
+            --danger: #f44336;
+            --warning: #FF9800;
+            --info: #2196F3;
+            --success: #4CAF50;
+        }
+
+        /* ========== RESET & BASE ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg);
+            padding: 15px;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ========== KONTAINER UTAMA ========== */
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* ========== HEADER & TOMBOL ATAS ========== */
+        .header-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: #ddd;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: #ccc;
+            transform: scale(1.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin: 0 0 5px 0;
+            font-size: 24px;
+        }
+
+        .author {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        /* ========== MODAL BANTUAN ========== */
+        #helpModal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .btn-close {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-close:hover {
+            background: var(--secondary);
+        }
+
+        /* ========== INPUT SECTION ========== */
+        .box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #c8e6c9;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        textarea, 
+        input[type="text"] {
+            font-family: 'Roboto', sans-serif;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(7, 94, 84, 0.1);
+        }
+
+        #rawInput {
+            height: 150px;
+        }
+
+        #msgInput {
+            height: 80px;
+            margin-bottom: 10px;
+        }
+
+        /* ========== TOMBOL PROSES DATA ========== */
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-save:hover {
+            background: var(--secondary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn-save:active {
+            transform: translateY(0);
+        }
+
+        /* ========== KONTROL PENCARIAN ========== */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .controls input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        /* ========== GRUP TOMBOL AKSI ========== */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            justify-content: center;
+            color: white;
+        }
+
+        .btn-sm:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-sm:active {
+            transform: translateY(0);
+        }
+
+        .btn-select-all {
+            background: var(--info);
+        }
+
+        .btn-deselect-all {
+            background: var(--warning);
+        }
+
+        .btn-copy-selected {
+            background: var(--success);
+        }
+
+        .btn-wa-selected {
+            background: var(--accent);
+        }
+
+        .btn-clear {
+            background: var(--danger);
+        }
+
+        /* ========== DAFTAR ANGGOTA ========== */
+        .info-bar {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background: #fafafa;
+            margin-bottom: 15px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .list-item:hover {
+            background: #f0f0f0;
+        }
+
+        .list-item.selected {
+            background: #e3f2fd;
+            border-left: 3px solid var(--info);
+        }
+
+        .list-item input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.3);
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .list-item span {
+            flex: 1;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        /* ========== PREVIEW AREA ========== */
+        .preview-area {
+            background: #f9f9f9;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        /* ========== NOTIFIKASI ========== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 350px;
+            display: none;
+            animation: slideIn 0.3s ease;
+            font-size: 14px;
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ========== MODAL CONTENT STYLING ========== */
+        .modal-content ol {
+            padding-left: 20px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .modal-content li {
+            margin-bottom: 10px;
+        }
+
+        .modal-content h3 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        /* ========== SCROLLBAR STYLING ========== */
+        .list-container::-webkit-scrollbar,
+        .preview-area::-webkit-scrollbar,
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .list-container::-webkit-scrollbar-track,
+        .preview-area::-webkit-scrollbar-track,
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .list-container::-webkit-scrollbar-thumb,
+        .preview-area::-webkit-scrollbar-thumb,
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .list-container::-webkit-scrollbar-thumb:hover,
+        .preview-area::-webkit-scrollbar-thumb:hover,
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* ========== RESPONSIVE DESIGN ========== */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-sm {
+                width: 100%;
+            }
+            
+            .header-buttons {
+                top: 15px;
+                right: 15px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+            
+            .list-container {
+                max-height: 250px;
+            }
+            
+            .preview-area {
+                max-height: 200px;
+            }
+        }
+
+        /* ========== PRINT STYLES ========== */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+            
+            .btn-group,
+            .btn-save,
+            .header-buttons,
+            .controls {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== KONTAINER UTAMA ========== -->
+    <div class="container">
+        
+        <!-- Tombol Atas -->
+        <div class="header-buttons">
+            <button class="btn-icon" onclick="toggleHelp(true)" title="Bantuan">
+                <i class="fas fa-question"></i>
+            </button>
+        </div>
+        
+        <!-- Judul -->
+        <h2>
+            <i class="fas fa-tag"></i> WA Tagger - Format @NIP
+        </h2>
+        <div class="author">
+            Design by Wahyu | Modified with @NIP Format
+        </div>
+
+        <!-- ========== MODAL BANTUAN ========== -->
+        <div id="helpModal">
+            <div class="modal-content">
+                <h3>
+                    <i class="fas fa-info-circle"></i> Panduan Penggunaan
+                </h3>
+                <ol>
+                    <li>
+                        <b>Input Data:</b> Paste data nama dan NIP di kolom pertama.<br>
+                        <small style="color:#666;">Contoh: 1. ABDI HARIAWAN AKBAR ARN251-29002</small>
+                    </li>
+                    <li>
+                        <b>Pesan (Opsional):</b> Tulis pesan pengantar di kolom kedua.<br>
+                        <small style="color:#666;">Contoh: Segera Ikhwah...</small>
+                    </li>
+                    <li>
+                        <b>Proses Data:</b> Klik tombol <b>"PROSES DATA"</b> untuk mengkonversi.
+                    </li>
+                    <li>
+                        <b>Pilih Anggota:</b> Centang anggota yang ingin di-tag. Gunakan fitur pencarian untuk filter.
+                    </li>
+                    <li>
+                        <b>Copy/Share:</b> Klik tombol yang sesuai untuk menyalin atau share ke WhatsApp.
+                    </li>
+                    <li>
+                        <b>Format Otomatis:</b> NIP akan otomatis diberi tanda <b>@</b> di depannya tanpa <b>#</b> di akhir.
+                    </li>
+                </ol>
+                
+                <div style="background:#fff3cd; padding:10px; border-radius:5px; font-size:13px; margin-bottom:15px;">
+                    <b><i class="fas fa-lightbulb"></i> Tips:</b><br>
+                    • Gunakan <b>Pilih Semua</b> atau <b>Batal Pilih</b> untuk memudahkan seleksi.<br>
+                    • Hasil yang dicopy/share hanya data yang tercentang.<br>
+                    • Data otomatis tersimpan di browser (localStorage).<br>
+                    • Tekan <b>Ctrl+Enter</b> untuk proses data dengan cepat.<br>
+                    • Tekan <b>Esc</b> untuk menutup bantuan ini.
+                </div>
+                
+                <button class="btn-close" onclick="toggleHelp(false)">
+                    <i class="fas fa-times"></i> Tutup
+                </button>
+            </div>
+        </div>
+
+        <!-- ========== INPUT DATA ========== -->
+        <div class="box">
+            <label for="rawInput">
+                <i class="fas fa-paste"></i> 1. Input Data (Nama dan NIP):
+            </label>
+            <textarea 
+                id="rawInput" 
+                placeholder="Contoh:&#10;1. ABDI HARIAWAN AKBAR ARN251-29002&#10;2. ABDUL AZIZ ARN251-29004&#10;3. YUSUF ARN251-29005&#10;&#10;Format bebas, yang penting ada NIP-nya (ARN...)"
+            ></textarea>
+        </div>
+
+        <!-- ========== PESAN ========== -->
+        <label for="msgInput">
+            <i class="fas fa-comment"></i> 2. Pesan (Opsional):
+        </label>
+        <textarea 
+            id="msgInput" 
+            placeholder="Contoh: Segera Ikhwah..."
+        ></textarea>
+        
+        <!-- ========== TOMBOL PROSES DATA ========== -->
+        <button class="btn-save" type="button" onclick="saveData()">
+            <i class="fas fa-cogs"></i> PROSES DATA
+        </button>
+
+        <!-- ========== PENCARIAN & TOMBOL AKSI ========== -->
+        <label style="margin-top: 20px;">
+            <i class="fas fa-check-square"></i> 3. Pilih Anggota:
+        </label>
+        
+        <div class="controls">
+            <input 
+                type="text" 
+                id="search" 
+                placeholder="🔍 Cari nama atau NIP..." 
+                onkeyup="filterList()"
+            >
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn-sm btn-select-all" onclick="selectAll()">
+                <i class="fas fa-check-square"></i> Pilih Semua
+            </button>
+            <button class="btn-sm btn-deselect-all" onclick="deselectAll()">
+                <i class="fas fa-square"></i> Batal Pilih
+            </button>
+            <button class="btn-sm btn-copy-selected" onclick="copySelected()">
+                <i class="fas fa-copy"></i> Copy Terpilih
+            </button>
+            <button class="btn-sm btn-wa-selected" onclick="shareToWA()">
+                <i class="fab fa-whatsapp"></i> Share ke WA
+            </button>
+            <button class="btn-sm btn-clear" onclick="clearAll()">
+                <i class="fas fa-trash"></i> Clear
+            </button>
+        </div>
+
+        <!-- ========== INFO BAR ========== -->
+        <div class="info-bar">
+            <span id="totalInfo">
+                <i class="fas fa-database"></i> Total: 0 data
+            </span>
+            <span id="selectedInfo">
+                <i class="fas fa-check-circle"></i> Terpilih: 0
+            </span>
+        </div>
+
+        <!-- ========== DAFTAR ANGGOTA ========== -->
+        <div class="list-container" id="nameList">
+            <div style="text-align:center; padding:30px; color:#999;">
+                <i class="fas fa-inbox" style="font-size:40px; display:block; margin-bottom:10px;"></i>
+                Silakan input dan proses data terlebih dahulu...
+            </div>
+        </div>
+
+        <!-- ========== PREVIEW HASIL ========== -->
+        <label style="margin-top:15px;">
+            <i class="fas fa-eye"></i> Preview Hasil:
+        </label>
+        <div class="preview-area" id="previewArea">
+            <span style="color:#999;">
+                <i class="fas fa-info-circle"></i> Preview akan muncul di sini...
+            </span>
+        </div>
+        
+    </div>
+    <!-- END KONTAINER UTAMA -->
+
+    <!-- ========== NOTIFIKASI ========== -->
+    <div class="notification" id="notification"></div>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+        // ==================== VARIABEL GLOBAL ====================
+        let dataAnggota = [];
+        let selectedSet = new Set();
+
+        // ==================== FUNGSI MODAL ====================
+        /**
+         * Menampilkan/menyembunyikan modal bantuan
+         * @param {boolean} show - true untuk tampil, false untuk sembunyi
+         */
+        function toggleHelp(show) {
+            document.getElementById('helpModal').style.display = show ? 'block' : 'none';
+        }
+
+        // Tutup modal jika klik di luar area modal
+        window.onclick = function(event) {
+            const modal = document.getElementById('helpModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // ==================== FUNGSI PROSES DATA ====================
+        /**
+         * Memproses input data, mengekstrak NIP dan memformat ulang
+         */
+        function saveData() {
+            const raw = document.getElementById('rawInput').value.trim();
+            
+            // Validasi input kosong
+            if (!raw) {
+                showNotification('⚠️ Masukkan data terlebih dahulu!', 'error');
+                return;
+            }
+
+            const lines = raw.split('\n');
+            dataAnggota = [];
+            selectedSet.clear();
+
+            // Proses setiap baris
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return; // Skip baris kosong
+
+                // Cari NIP dalam berbagai format (ARN251-29002, ARN25129002, dll)
+                const nipMatch = trimmed.match(/[A-Z]+\d+[\-]?\d+/);
+                
+                if (nipMatch) {
+                    const nip = nipMatch[0]; // NIP original
+                    const formattedNIP = `@${nip}`; // Format @NIP (tanpa #)
+                    
+                    // Ambil nama (hapus nomor urut dan NIP)
+                    let name = trimmed
+                        .replace(/^\d+\.\s*/, '') // Hapus nomor urut (1., 2., dst)
+                        .replace(nip, '') // Hapus NIP original
+                        .trim();
+                    
+                    // Simpan data anggota
+                    dataAnggota.push({
+                        name: name,
+                        nipOriginal: nip,
+                        nipFormatted: formattedNIP,
+                        fullText: `${name} ${formattedNIP}`,
+                        id: dataAnggota.length
+                    });
+                    
+                    // Default: semua terpilih
+                    selectedSet.add(dataAnggota.length - 1);
+                }
+            });
+
+            // Validasi jika tidak ada NIP ditemukan
+            if (dataAnggota.length === 0) {
+                showNotification('❌ Tidak ada NIP yang ditemukan! Pastikan format NIP benar (ARN251-29002)', 'error');
+                return;
+            }
+
+            // Simpan ke localStorage untuk persistensi
+            localStorage.setItem('wa_tagger_data', JSON.stringify(dataAnggota));
+            localStorage.setItem('wa_tagger_selected', JSON.stringify([...selectedSet]));
+
+            // Render ulang daftar dan preview
+            renderList();
+            updatePreview();
+            
+            // Notifikasi sukses
+            showNotification(`✅ ${dataAnggota.length} NIP berhasil diproses!`, 'success');
+        }
+
+        // ==================== FUNGSI RENDER DAFTAR ====================
+        /**
+         * Merender daftar anggota dengan filter pencarian
+         * @param {string} filter - kata kunci pencarian (default kosong)
+         */
+        function renderList(filter = '') {
+            const container = document.getElementById('nameList');
+            const filterLower = filter.toLowerCase();
+            
+            // Filter data berdasarkan kata kunci
+            const filteredData = dataAnggota.filter(item => 
+                !filter || 
+                item.name.toLowerCase().includes(filterLower) || 
+                item.nipOriginal.toLowerCase().includes(filterLower) ||
+                item.nipFormatted.toLowerCase().includes(filterLower)
+            );
+
+            // Tampilkan pesan jika tidak ada data
+            if (filteredData.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:#999;">
+                        <i class="fas fa-search" style="font-size:40px; display:block; margin-bottom:10px;"></i>
+                        ${filter ? 'Data tidak ditemukan...' : 'Belum ada data yang diproses...'}
+                    </div>
+                `;
+            } else {
+                // Render setiap item dengan checkbox
+                container.innerHTML = filteredData.map(item => {
+                    const isSelected = selectedSet.has(item.id);
+                    return `
+                        <div class="list-item ${isSelected ? 'selected' : ''}" 
+                             id="item-${item.id}" 
+                             onclick="toggleItem(${item.id}, event)">
+                            <input type="checkbox" 
+                                   ${isSelected ? 'checked' : ''} 
+                                   onclick="event.stopPropagation(); toggleItem(${item.id}, event)">
+                            <span>${escapeHtml(item.fullText)}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Update info total dan terpilih
+            updateInfo();
+        }
+
+        // ==================== FUNGSI TOGGLE ITEM ====================
+        /**
+         * Toggle pilih/batal pilih item
+         * @param {number} id - ID item
+         * @param {Event} event - event klik
+         */
+        function toggleItem(id, event) {
+            // Stop propagasi jika klik checkbox
+            if (event.target.type === 'checkbox') {
+                event.stopPropagation();
+            }
+
+            // Toggle selected set
+            if (selectedSet.has(id)) {
+                selectedSet.delete(id);
+            } else {
+                selectedSet.add(id);
+            }
+
+            // Update tampilan checkbox
+            const itemDiv = document.getElementById(`item-${id}`);
+            const checkbox = itemDiv ? itemDiv.querySelector('input[type="checkbox"]') : null;
+            
+            if (itemDiv) {
+                if (selectedSet.has(id)) {
+                    itemDiv.classList.add('selected');
+                    if (checkbox) checkbox.checked = true;
+                } else {
+                    itemDiv.classList.remove('selected');
+                    if (checkbox) checkbox.checked = false;
+                }
+            }
+
+            // Update info dan preview
+            updateInfo();
+            updatePreview();
+            
+            // Simpan ke localStorage
+            localStorage.setItem('wa_tagger_selected', JSON.stringify([...selectedSet]));
+        }
+
+        // ==================== FUNGSI SELEKSI ====================
+        /**
+         * Pilih semua anggota
+         */
+        function selectAll() {
+            if (dataAnggota.length === 0) {
+                showNotification('⚠️ Belum ada data yang diproses!', 'error');
+                return;
+            }
+
+            dataAnggota.forEach(item => selectedSet.add(item.id));
+            renderList(document.getElementById('search').value);
+            updatePreview();
+            showNotification('✅ Semua data dipilih!', 'success');
+        }
+
+        /**
+         * Batal pilih semua anggota
+         */
+        function deselectAll() {
+            selectedSet.clear();
+            renderList(document.getElementById('search').value);
+            updatePreview();
+            showNotification('❌ Semua data tidak dipilih!', 'success');
+        }
+
+        /**
+         * Update info total dan terpilih
+         */
+        function updateInfo() {
+            document.getElementById('totalInfo').innerHTML = 
+                `<i class="fas fa-database"></i> Total: ${dataAnggota.length} data`;
+            document.getElementById('selectedInfo').innerHTML = 
+                `<i class="fas fa-check-circle"></i> Terpilih: ${selectedSet.size}`;
+        }
+
+        // ==================== FUNGSI FORMAT OUTPUT ====================
+        /**
+         * Mendapatkan data yang terpilih
+         * @returns {Array} array data terpilih
+         */
+        function getSelectedData() {
+            return dataAnggota.filter(item => selectedSet.has(item.id));
+        }
+
+        /**
+         * Memformat output dengan pesan dan nomor urut
+         * @returns {string} teks yang sudah diformat
+         */
+        function formatOutput() {
+            const selected = getSelectedData();
+            const pesan = document.getElementById('msgInput').value.trim();
+            let result = '';
+
+            // Tambahkan pesan jika ada
+            if (pesan) {
+                result += pesan + '\n\n';
+            }
+
+            // Tambahkan data dengan nomor urut
+            selected.forEach((item, index) => {
+                const number = index + 1;
+                result += `${number}. ${item.fullText}\n`;
+            });
+
+            return result.trim();
+        }
+
+        /**
+         * Update preview area
+         */
+        function updatePreview() {
+            const previewArea = document.getElementById('previewArea');
+            const output = formatOutput();
+            
+            if (!output) {
+                previewArea.innerHTML = `
+                    <span style="color:#999;">
+                        <i class="fas fa-info-circle"></i> Preview akan muncul di sini...
+                    </span>
+                `;
+            } else {
+                previewArea.textContent = output;
+            }
+        }
+
+        // ==================== FUNGSI COPY & SHARE ====================
+        /**
+         * Copy hasil ke clipboard
+         */
+        function copySelected() {
+            const output = formatOutput();
+            if (!output) {
+                showNotification('⚠️ Tidak ada data yang dipilih!', 'error');
+                return;
+            }
+
+            // Gunakan Clipboard API
+            navigator.clipboard.writeText(output).then(() => {
+                showNotification(`📋 ${selectedSet.size} data berhasil dicopy ke clipboard!`, 'success');
+            }).catch(() => {
+                // Fallback untuk browser lama
+                const textarea = document.createElement('textarea');
+                textarea.value = output;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showNotification(`📋 ${selectedSet.size} data berhasil dicopy!`, 'success');
+            });
+        }
+
+        /**
+         * Share hasil ke WhatsApp
+         */
+        function shareToWA() {
+            const output = formatOutput();
+            if (!output) {
+                showNotification('⚠️ Tidak ada data yang dipilih!', 'error');
+                return;
+            }
+
+            const encodedText = encodeURIComponent(output);
+            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+            showNotification(`💬 ${selectedSet.size} data dibagikan ke WhatsApp!`, 'success');
+        }
+
+        // ==================== FUNGSI CLEAR ====================
+        /**
+         * Hapus semua data
+         */
+        function clearAll() {
+            document.getElementById('rawInput').value = '';
+            document.getElementById('msgInput').value = '';
+            document.getElementById('search').value = '';
+            document.getElementById('nameList').innerHTML = `
+                <div style="text-align:center; padding:30px; color:#999;">
+                    <i class="fas fa-inbox" style="font-size:40px; display:block; margin-bottom:10px;"></i>
+                    Silakan input dan proses data terlebih dahulu...
+                </div>
+            `;
+            document.getElementById('previewArea').innerHTML = `
+                <span style="color:#999;">
+                    <i class="fas fa-info-circle"></i> Preview akan muncul di sini...
+                </span>
+            `;
+            
+            dataAnggota = [];
+            selectedSet.clear();
+            updateInfo();
+            
+            // Hapus dari localStorage
+            localStorage.removeItem('wa_tagger_data');
+            localStorage.removeItem('wa_tagger_selected');
+            
+            showNotification('🗑️ Semua data telah dihapus!', 'success');
+        }
+
+        // ==================== FUNGSI FILTER ====================
+        /**
+         * Filter daftar berdasarkan kata kunci
+         */
+        function filterList() {
+            const query = document.getElementById('search').value;
+            renderList(query);
+        }
+
+        // ==================== FUNGSI UTILITY ====================
+        /**
+         * Escape HTML untuk mencegah XSS
+         * @param {string} text - teks yang akan di-escape
+         * @returns {string} teks yang sudah di-escape
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        /**
+         * Menampilkan notifikasi
+         * @param {string} message - pesan notifikasi
+         * @param {string} type - tipe notifikasi ('success' atau 'error')
+         */
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'error' ? '#f44336' : '#4CAF50';
+            notification.style.display = 'block';
+            
+            // Auto hide setelah 3 detik
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // ==================== INISIALISASI ====================
+        window.onload = () => {
+            // Load data dari localStorage
+            const savedData = localStorage.getItem('wa_tagger_data');
+            const savedSelected = localStorage.getItem('wa_tagger_selected');
+            
+            if (savedData) {
+                try {
+                    dataAnggota = JSON.parse(savedData);
+                    
+                    if (savedSelected) {
+                        selectedSet = new Set(JSON.parse(savedSelected));
+                    }
+                    
+                    // Rebuild raw input dari data yang tersimpan
+                    const rawText = dataAnggota.map((item, index) => 
+                        `${index + 1}. ${item.name} ${item.nipOriginal}`
+                    ).join('\n');
+                    document.getElementById('rawInput').value = rawText;
+                    
+                    // Render daftar dan preview
+                    renderList();
+                    updatePreview();
+                } catch (e) {
+                    console.error('Error loading saved data:', e);
+                    updateInfo();
+                }
+            } else {
+                updateInfo();
+            }
+        };
+
+        // ==================== EVENT LISTENERS ====================
+        // Update preview saat pesan berubah
+        document.getElementById('msgInput').addEventListener('input', updatePreview);
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Esc: Tutup modal
+            if (e.key === 'Escape') {
+                document.getElementById('helpModal').style.display = 'none';
+            }
+            
+            // Ctrl+Enter: Proses data
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                saveData();
+            }
+            
+            // Ctrl+A: Pilih semua (hanya di luar textarea)
+            if (e.ctrlKey && e.key === 'a' && 
+                document.activeElement.tagName !== 'TEXTAREA' && 
+                document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                selectAll();
+            }
+            
+            // Ctrl+F: Fokus ke pencarian
+            if (e.ctrlKey && e.key === 'f' && 
+                document.activeElement.tagName !== 'TEXTAREA' && 
+                document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                document.getElementById('search').focus();
+            }
+        });
+
+        console.log('✅ WA Tagger - Format @NIP siap digunakan!');
+        console.log('📋 Fitur:');
+        console.log('  - Auto-detect NIP');
+        console.log('  - Format @NIP (tanpa #)');
+        console.log('  - Pesan kustom');
+        console.log('  - Copy & Share selektif');
+        console.log('  - Auto-save ke localStorage');
+        console.log('💡 Shortcut:');
+        console.log('  - Ctrl+Enter: Proses data');
+        console.log('  - Esc: Tutup bantuan');
+        console.log('  - Ctrl+F: Fokus pencarian');
+    </script>
+
+</body>
+</html>
